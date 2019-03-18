@@ -4,7 +4,7 @@
 import {GeneralTypes} from 'mattermost-redux/action_types';
 import {Client4} from 'mattermost-redux/client';
 import {General} from 'mattermost-redux/constants';
-import {fetchMyChannelsAndMembers, markChannelAsRead, markChannelAsViewed} from 'mattermost-redux/actions/channels';
+import {fetchMyChannelsAndMembers} from 'mattermost-redux/actions/channels';
 import {getClientConfig, getDataRetentionPolicy, getLicenseConfig} from 'mattermost-redux/actions/general';
 import {receivedNewPost} from 'mattermost-redux/actions/posts';
 import {getMyTeams, getMyTeamMembers, selectTeam} from 'mattermost-redux/actions/teams';
@@ -12,10 +12,7 @@ import {getMyTeams, getMyTeamMembers, selectTeam} from 'mattermost-redux/actions
 import {ViewTypes} from 'app/constants';
 import {recordTime} from 'app/utils/segment';
 
-import {
-    handleSelectChannel,
-    setChannelDisplayName,
-} from 'app/actions/views/channel';
+import {handleSelectChannel} from 'app/actions/views/channel';
 
 export function startDataCleanup() {
     return async (dispatch, getState) => {
@@ -55,7 +52,7 @@ export function loadFromPushNotification(notification, startAppFromPushNotificat
         const state = getState();
         const {data} = notification;
         const {currentTeamId, teams, myMembers: myTeamMembers} = state.entities.teams;
-        const {currentChannelId, channels} = state.entities.channels;
+        const {channels} = state.entities.channels;
 
         let channelId = '';
         let teamId = currentTeamId;
@@ -87,14 +84,7 @@ export function loadFromPushNotification(notification, startAppFromPushNotificat
             dispatch(selectTeam({id: teamId}));
         }
 
-        if (channelId === currentChannelId && !startAppFromPushNotification) {
-            dispatch(markChannelAsRead(channelId, null, true));
-            dispatch(markChannelAsViewed(channelId));
-        } else if (channelId !== currentChannelId) {
-            // when the notification is from a channel other than the current channel
-            dispatch(setChannelDisplayName(''));
-            dispatch(handleSelectChannel(channelId));
-        }
+        dispatch(handleSelectChannel(channelId, startAppFromPushNotification));
     };
 }
 
