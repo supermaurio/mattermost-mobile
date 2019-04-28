@@ -20,6 +20,49 @@ RCT_EXPORT_MODULE();
   return YES;
 }
 
+- (BOOL)hasSafeAreaInsets {
+  UIView *rootView = nil;
+  
+  UIApplication *sharedApplication = RCTSharedApplication();
+  if (sharedApplication) {
+    UIWindow *window = RCTSharedApplication().keyWindow;
+    if (window) {
+      UIViewController *rootViewController = window.rootViewController;
+      if (rootViewController) {
+        rootView = rootViewController.view;
+      }
+    }
+  }
+  
+  UIEdgeInsets safeAreaInsets = [self safeAreaInsetsForView:rootView];
+  return safeAreaInsets.bottom > 0;
+}
+
+- (UIEdgeInsets)safeAreaInsetsForView:(UIView *)view {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
+  if (@available(iOS 11.0, *)) {
+    if (view) {
+      return view.safeAreaInsets;
+    }
+  }
+#endif
+  
+  UIEdgeInsets safeAreaInsets = UIEdgeInsetsMake(0, 0, 0, 0);
+  
+  if (view) {
+    return safeAreaInsets;
+  }
+  
+  return safeAreaInsets;
+}
+
+- (NSDictionary *)constantsToExport {
+  
+  return @{
+           @"hasSafeAreaInsets": @([self hasSafeAreaInsets]),
+           };
+}
+
 @synthesize bridge = _bridge;
 
 - (void)dealloc

@@ -7,7 +7,7 @@
 //
 
 #import <React/RCTBridgeModule.h>
-
+#import <React/RCTUtils.h>
 
 @interface MattermostManaged : NSObject <RCTBridgeModule>
 - (NSUserDefaults *)bucketByName:(NSString*)name;
